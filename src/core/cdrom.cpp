@@ -1,7 +1,7 @@
 #include <core/cdrom.hpp>
 #include <fstream>
+#include <utils/arch.hpp>
 #include <utils/log.hpp>
-#include <utils/memory.hpp>
 
 namespace PurpleBox {
 
@@ -34,4 +34,5 @@ void CDRom::LoadRom() {
       reinterpret_cast<char*>(&m_appLoaderFile.data()[AppLoaderHeaderSize]),
       appLoaderSize);
 }
+
 }  // namespace PurpleBox

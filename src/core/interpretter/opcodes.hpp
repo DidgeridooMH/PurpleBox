@@ -1,0 +1,14 @@
+#ifndef PB_OPCODES_HPP
+#define PB_OPCODES_HPP
+
+#include <cstdint>
+
+namespace PurpleBox {
+static constexpr uint32_t ADDIS_OPCODE = 15;
+static constexpr uint32_t ADDI_OPCODE = 14;
+static constexpr uint32_t MOVETO_OPCODE = 31;
+
+static constexpr uint32_t MTSPR_XOPCODE = 467;
+}  // namespace PurpleBox
+
+#endif

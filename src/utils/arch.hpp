@@ -1,5 +1,5 @@
-#ifndef PB_MEMORY_HPP
-#define PB_MEMORY_HPP
+#ifndef PB_ARCH_HPP
+#define PB_ARCH_HPP
 
 #include <cstdint>
 

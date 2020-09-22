@@ -1,43 +1,92 @@
 #include <core/cdrom.hpp>
-#include <iostream>
+#include <core/interpretter/gekko.hpp>
+#include <core/memory/ram.hpp>
+#include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utils/cmdargs.hpp>
 #include <utils/log.hpp>
 
 #ifndef VERSION
 #define VERSION "UNOFFICIAL"
 #endif
 
-using namespace PurpleBox;
+struct CmdParameters {
+  std::string biosFileName;
+};
 
 void PrintBanner() {
   std::stringstream banner;
   banner << "PurpleBox Version " << VERSION;
-  Info(banner.str());
+  PurpleBox::Info(banner.str());
 }
 
-void PrintUsage() { Info("Usage: purplebox [ROM]"); }
+void PrintUsage() { PurpleBox::Info("Usage: purplebox [ROM]"); }
+
+void HandleCmdArgs(int argc, char** argv,
+                   std::shared_ptr<CmdParameters> parameters) {
+  auto cmdArgs = std::make_unique<PurpleBox::CmdArgs>();
+
+  cmdArgs->AddArgument('v', "version", [=](const std::string&) {
+    PrintBanner();
+    exit(0);
+  });
+
+  cmdArgs->AddArgument(
+      'b', "bios",
+      [parameters](const std::string& arg) { parameters->biosFileName = arg; },
+      true);
+
+  try {
+    cmdArgs->ParseArguments(argc, argv);
+  } catch (const std::exception& e) {
+    PurpleBox::Error("Error parsing arguments: %s", e.what());
+    exit(1);
+  }
+}
 
 int main(int argc, char** argv) {
   // TODO: Change based on debug/release
-  SetLogLevel(LogLevel::Debug);
+  PurpleBox::SetLogLevel(PurpleBox::LogLevel::Debug);
 
-  PrintBanner();
-  if (argc < 2) {
-    Error("File not specified");
-    PrintUsage();
+  auto cmdParameters = std::make_shared<CmdParameters>();
 
+  HandleCmdArgs(argc, argv, cmdParameters);
+
+  if (cmdParameters->biosFileName.size() == 0) {
+    PurpleBox::Error(
+        "HLE Bios not implemented. Please provide an IPL/BIOS file.");
     return 1;
   }
 
-  std::string romFileName = argv[1];
-  auto cdRom = std::make_unique<CDRom>(romFileName);
+  // auto cdRom = std::make_unique<PurpleBox::CDRom>(romFileName);
+
+  // try {
+  //   cdRom->LoadRom();
+  // } catch (const std::exception& e) {
+  //   PurpleBox::Error("Error reading file " + romFileName + e.what());
+  // }
+
+  auto ram = std::make_shared<PurpleBox::Ram>();
 
   try {
-    cdRom->LoadRom();
+    ram->LoadIplFile(cmdParameters->biosFileName);
   } catch (const std::exception& e) {
-    Error("Error reading file " + romFileName + e.what());
+    PurpleBox::Error("Error loading BIOS: %s", e.what());
+    return 1;
+  }
+
+  auto cpu = std::make_unique<PurpleBox::Gekko>();
+  cpu->ConnectMemory(ram);
+
+  while (true) {
+    try {
+      cpu->Tick();
+    } catch (const std::exception& e) {
+      PurpleBox::Error(e.what());
+      return 1;
+    }
   }
 
   return 0;
