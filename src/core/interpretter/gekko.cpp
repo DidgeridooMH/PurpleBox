@@ -39,15 +39,10 @@ void Gekko::Tick() {
 void Gekko::ConnectMemory(std::shared_ptr<Bus> bus) { m_bus = bus; }
 
 void Gekko::GenerateOpcodeTables() {
-  m_opcodeJumpTable.insert(std::make_pair(
-      ADDIS_OPCODE,
-      [this](std::shared_ptr<Format> format) { this->AddImmShift(format); }));
-  m_opcodeJumpTable.insert(std::make_pair(
-      ADDI_OPCODE,
-      [this](std::shared_ptr<Format> format) { this->AddImm(format); }));
-  m_opcodeJumpTable.insert(std::make_pair(
-      MOVETO_OPCODE,
-      [this](std::shared_ptr<Format> format) { this->MoveTo(format); }));
+  CREATE_OPCODE_ENTRY(ADDIS_OPCODE, AddImmShift);
+  CREATE_OPCODE_ENTRY(ADDI_OPCODE, AddImm);
+  CREATE_OPCODE_ENTRY(MOVETO_OPCODE, MoveTo);
+  CREATE_OPCODE_ENTRY(STH_OPCODE, StoreHalfword);
 }
 
 std::shared_ptr<Format> Gekko::DecodeInstruction(uint32_t instruction) {
@@ -60,6 +55,7 @@ std::shared_ptr<Format> Gekko::DecodeInstruction(uint32_t instruction) {
       return std::make_shared<XfxFormat>(instruction);
     case ADDI_OPCODE:
     case ADDIS_OPCODE:
+    case STH_OPCODE:
       return std::make_shared<DFormat>(instruction);
   }
 
@@ -90,12 +86,33 @@ void Gekko::AddImmShift(std::shared_ptr<Format> format) {
         dFormat->GetImmediate());
 }
 
+void Gekko::StoreHalfword(std::shared_ptr<Format> format) {
+  auto dFormat = std::dynamic_pointer_cast<DFormat>(format);
+
+  int16_t signedImm = static_cast<int16_t>(dFormat->GetImmediate());
+  uint32_t address = static_cast<int32_t>(signedImm);
+  if (dFormat->GetA() > 0) {
+    address += m_gpr[dFormat->GetA()];
+  }
+
+  uint16_t value =
+      (m_gpr[dFormat->GetD()] & 0xFF) | (m_gpr[dFormat->GetD()] >> 8 & 0xFF);
+
+  m_bus->Write16(value, address);
+
+  Debug("$%04x: sth r%d, %d(r%d)", m_pc, dFormat->GetD(),
+        dFormat->GetImmediate(), dFormat->GetA());
+}
+
 void Gekko::MoveTo(std::shared_ptr<Format> format) {
   auto xfxFormat = std::dynamic_pointer_cast<XfxFormat>(format);
 
   switch (xfxFormat->GetExtendedOpcode()) {
     case MTSPR_XOPCODE:
       MoveToSpr(xfxFormat);
+      break;
+    case MTMSR_XOPCODE:
+      MoveToMsr(xfxFormat);
       break;
     default:
       throw std::runtime_error("Unknown extended move to opcode " +
@@ -107,6 +124,12 @@ void Gekko::MoveToSpr(std::shared_ptr<XfxFormat> format) {
   m_spr[format->GetB()] = m_gpr[format->GetA()];
 
   Debug("$%04x: mtspr spr%d, r%d", m_pc, format->GetB(), format->GetA());
+}
+
+void Gekko::MoveToMsr(std::shared_ptr<XfxFormat> format) {
+  m_msr.raw = m_gpr[format->GetA()];
+
+  Debug("$%04x: mtmsr r%d", m_pc, format->GetA());
 }
 
 }  // namespace PurpleBox

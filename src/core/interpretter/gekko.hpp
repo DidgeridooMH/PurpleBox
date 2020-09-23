@@ -17,6 +17,11 @@ static constexpr uint32_t RESET_VECTOR = 0x100;
 
 typedef std::function<void(std::shared_ptr<Format> format)> opcodeFunc;
 
+#define CREATE_OPCODE_ENTRY(opcode, func)  \
+  m_opcodeJumpTable.insert(std::make_pair( \
+      opcode,                              \
+      [this](std::shared_ptr<Format> format) { this->func(format); }));
+
 class Gekko {
  public:
   Gekko();
@@ -33,8 +38,10 @@ class Gekko {
 
   void AddImm(std::shared_ptr<Format> format);
   void AddImmShift(std::shared_ptr<Format> format);
+  void StoreHalfword(std::shared_ptr<Format> format);
   void MoveTo(std::shared_ptr<Format> format);
   void MoveToSpr(std::shared_ptr<XfxFormat> format);
+  void MoveToMsr(std::shared_ptr<XfxFormat> format);
 
   std::map<uint32_t, opcodeFunc> m_opcodeJumpTable;
 
