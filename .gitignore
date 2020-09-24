@@ -35,4 +35,5 @@ build/
 .vscode/
 roms/
 
-subprojects
+subprojects/googletest-release-1.10.0
+subprojects/packagecache
