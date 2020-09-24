@@ -1,3 +1,4 @@
+#include <iostream>
 #include <utils/arch.hpp>
 
 namespace PurpleBox {
@@ -7,16 +8,17 @@ static Endian GetNativeEndianness() {
   return (char*)(&testWord)[0] ? Endian::Little : Endian::Big;
 }
 
-uint32_t ReadBigEndianU32(uint32_t* address) {
+uint32_t ReadBigEndianU32(void* address) {
   if (GetNativeEndianness() == Endian::Big) {
-    return *address;
+    return *(uint32_t*)address;
   }
 
-  auto out = 0;
-  for (uint32_t i = 0; i < sizeof(uint32_t); ++i) {
-    out |= (static_cast<uint32_t>(address[i]) & 0xFF)
-           << (8 * (sizeof(uint32_t) - i - 1));
+  uint32_t out = 0;
+  for (auto i = 0; i < sizeof(uint32_t); ++i) {
+    out |= ((uint32_t)((uint8_t*)address)[i])
+           << ((sizeof(uint32_t) - 1 - i) * 8);
   }
+
   return out;
 }
 

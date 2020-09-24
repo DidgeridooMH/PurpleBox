@@ -26,8 +26,7 @@ void CDRom::LoadRom() {
                AppLoaderHeaderSize);
 
   static const auto AppLoaderSizeOffset = 0x14;
-  auto appLoaderSize = ReadBigEndianU32(
-      reinterpret_cast<uint32_t*>(&m_appLoaderFile[AppLoaderSizeOffset]));
+  auto appLoaderSize = ReadBigEndianU32(&m_appLoaderFile[AppLoaderSizeOffset]);
 
   m_appLoaderFile.reserve(appLoaderSize);
   romFile.read(

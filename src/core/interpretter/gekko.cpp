@@ -2,6 +2,7 @@
 #include <core/interpretter/gekko.hpp>
 #include <core/interpretter/opcodes.hpp>
 #include <cstring>
+#include <stdexcept>
 #include <string>
 #include <utils/log.hpp>
 

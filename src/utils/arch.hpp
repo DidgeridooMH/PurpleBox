@@ -6,7 +6,8 @@
 namespace PurpleBox {
 enum class Endian { Little = 0, Big, Native };
 
-uint32_t ReadBigEndianU32(uint32_t* address);
+uint32_t ReadBigEndianU32(void* address);
+
 }  // namespace PurpleBox
 
 #endif

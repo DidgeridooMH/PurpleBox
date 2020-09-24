@@ -1,4 +1,5 @@
 #include <queue>
+#include <stdexcept>
 #include <utils/cmdargs.hpp>
 #include <utils/log.hpp>
 

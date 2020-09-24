@@ -1,12 +1,11 @@
 project('purplebox', 'cpp',
   license : 'GPL',
   version : '0.1',
-  default_options : ['warning_level=3', 'cpp_std=c++2a'])
+  default_options : ['warning_level=3', 'cpp_std=c++17'])
 
 inc = include_directories('src/')
 
 src = [
-  'src/main.cpp',
   'src/core/cdrom.cpp',
   'src/core/interpretter/gekko.cpp',
   'src/utils/log.cpp',
@@ -16,10 +15,36 @@ src = [
   'src/utils/cmdargs.cpp',
   'src/core/formats/Format.cpp',
   'src/core/formats/DFormat.cpp',
-  'src/core/formats/XfxFormat.cpp']
+  'src/core/formats/XfxFormat.cpp'
+]
 
 executable('purplebox',
-  sources : src,
+  sources : [src, 'src/main.cpp'],
   include_directories : inc,
   cpp_args : '-DVERSION=@0@'.format(meson.project_version())
 )
+
+gtest = subproject('gtest')
+gtest_dep = gtest.get_variable('gtest_dep')
+gmock_dep = gtest.get_variable('gmock_dep')
+
+test_src = [
+  'test/test.cpp',
+  'test/utils/arch.cpp'
+]
+test_src += src
+
+test_inc = []
+test_inc += inc
+
+purplebox_test = executable(
+  'purplebox-test',
+  test_src,
+  include_directories : test_inc,
+  dependencies : [
+    gtest_dep,
+    gmock_dep
+  ]
+)
+
+test('PurpleBox Tests', purplebox_test)
