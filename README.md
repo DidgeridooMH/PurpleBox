@@ -1,5 +1,7 @@
 # PurpleBox
 
+![example workflow name](https://github.com/DidgeridooMH/PurpleBox/workflows/CI/badge.svg)
+
 PurpleBox is an early-stage GameCube emulator. This emulator has no focus and is mostly used as a fun project to learn the system. It is written using modern C++17 and utilizes the Meson build system.
 
 ## Requirements
