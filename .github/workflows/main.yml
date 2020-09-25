@@ -31,9 +31,5 @@ jobs:
           directory: build
           ninja-version: 1.9.0.post1
           
-      - name: Meson Build
-        uses: BSFishy/meson-build@v1.0.1
-        with:
-          action: test
-          directory: build
-          ninja-version: 1.9.0.post1
+      - name: Unit Test
+        run: ./build/purplebox-test
