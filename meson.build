@@ -32,7 +32,8 @@ test_src = [
   'test/test.cpp',
   'test/utils/arch.cpp',
   'test/utils/cmdargs.cpp',
-  'test/memory/ram.cpp'
+  'test/core/memory/ram.cpp',
+  'test/core/interpretter/gekkotest.cpp'
 ]
 test_src += src
 

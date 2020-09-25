@@ -66,10 +66,11 @@ std::shared_ptr<Format> Gekko::DecodeInstruction(uint32_t instruction) {
 void Gekko::AddImm(std::shared_ptr<Format> format) {
   std::shared_ptr<DFormat> dFormat = std::dynamic_pointer_cast<DFormat>(format);
 
-  m_gpr[dFormat->GetD()] = dFormat->GetImmediate();
+  uint32_t value = (int16_t)dFormat->GetImmediate();
   if (dFormat->GetA() > 0) {
-    m_gpr[dFormat->GetD()] = m_gpr[dFormat->GetA()];
+    value += m_gpr[dFormat->GetA()];
   }
+  m_gpr[dFormat->GetD()] = value;
 
   Debug("$%04x: addi\tr%d, r%d, 0x%x", m_pc, dFormat->GetD(), dFormat->GetA(),
         dFormat->GetImmediate());
@@ -78,10 +79,11 @@ void Gekko::AddImm(std::shared_ptr<Format> format) {
 void Gekko::AddImmShift(std::shared_ptr<Format> format) {
   auto dFormat = std::dynamic_pointer_cast<DFormat>(format);
 
-  m_gpr[dFormat->GetD()] = dFormat->GetImmediate() << 16;
+  uint32_t value = dFormat->GetImmediate() << 16;
   if (dFormat->GetA() > 0) {
-    m_gpr[dFormat->GetD()] = m_gpr[dFormat->GetA()];
+    value += m_gpr[dFormat->GetA()];
   }
+  m_gpr[dFormat->GetD()] = value;
 
   Debug("$%04x: addis r%d, r%d, 0x%x", m_pc, dFormat->GetD(), dFormat->GetA(),
         dFormat->GetImmediate());
