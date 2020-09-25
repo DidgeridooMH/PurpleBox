@@ -30,7 +30,8 @@ gmock_dep = gtest.get_variable('gmock_dep')
 
 test_src = [
   'test/test.cpp',
-  'test/utils/arch.cpp'
+  'test/utils/arch.cpp',
+  'test/utils/cmdargs.cpp'
 ]
 test_src += src
 
