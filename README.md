@@ -18,7 +18,7 @@ python -m pip install meson
 
 ```bash
 meson build
-ninja -C build
+meson compile -C build
 ```
 
 ## Running
