@@ -31,7 +31,11 @@ void Gekko::Tick() {
   m_pc += 4;
 
   // Decode
-  auto format = DecodeInstruction(instruction);
+  auto opcode = instruction >> 26 & 0x3F;
+  if (m_opcodeFormatTable.find(opcode) == m_opcodeFormatTable.end()) {
+    throw std::runtime_error("Unknown opcode " + std::to_string(opcode));
+  }
+  auto format = m_opcodeFormatTable[opcode](instruction);
 
   // Execute
   m_opcodeJumpTable[format->GetOpcode()](format);
@@ -40,27 +44,11 @@ void Gekko::Tick() {
 void Gekko::ConnectMemory(std::shared_ptr<Bus> bus) { m_bus = bus; }
 
 void Gekko::GenerateOpcodeTables() {
-  CREATE_OPCODE_ENTRY(ADDIS_OPCODE, AddImmShift);
-  CREATE_OPCODE_ENTRY(ADDI_OPCODE, AddImm);
-  CREATE_OPCODE_ENTRY(MOVETO_OPCODE, MoveTo);
-  CREATE_OPCODE_ENTRY(STH_OPCODE, StoreHalfword);
-}
-
-std::shared_ptr<Format> Gekko::DecodeInstruction(uint32_t instruction) {
-  auto opcode = instruction >> 26 & 0x3F;
-
-  // TODO: EFFICIENCYYYY
-  switch (opcode) {
-    case MOVETO_OPCODE:
-      // TODO: This most likely will change.
-      return std::make_shared<XfxFormat>(instruction);
-    case ADDI_OPCODE:
-    case ADDIS_OPCODE:
-    case STH_OPCODE:
-      return std::make_shared<DFormat>(instruction);
-  }
-
-  throw std::runtime_error("Unknown opcode " + std::to_string(opcode));
+  CREATE_OPCODE_ENTRY(ADDIS_OPCODE, AddImmShift, DFormat);
+  CREATE_OPCODE_ENTRY(ADDI_OPCODE, AddImm, DFormat);
+  CREATE_OPCODE_ENTRY(MOVETO_OPCODE, MoveTo, XfxFormat);
+  CREATE_OPCODE_ENTRY(STH_OPCODE, StoreHalfword, DFormat);
+  CREATE_OPCODE_ENTRY(ORI_OPCODE, OrImm, DFormat);
 }
 
 void Gekko::AddImm(std::shared_ptr<Format> format) {
@@ -72,7 +60,7 @@ void Gekko::AddImm(std::shared_ptr<Format> format) {
   }
   m_gpr[dFormat->GetD()] = value;
 
-  Debug("$%04x: addi\tr%d, r%d, 0x%x", m_pc, dFormat->GetD(), dFormat->GetA(),
+  Debug("$%04x: addi r%d, r%d, 0x%x", m_pc, dFormat->GetD(), dFormat->GetA(),
         dFormat->GetImmediate());
 }
 
@@ -86,6 +74,15 @@ void Gekko::AddImmShift(std::shared_ptr<Format> format) {
   m_gpr[dFormat->GetD()] = value;
 
   Debug("$%04x: addis r%d, r%d, 0x%x", m_pc, dFormat->GetD(), dFormat->GetA(),
+        dFormat->GetImmediate());
+}
+
+void Gekko::OrImm(std::shared_ptr<Format> format) {
+  auto dFormat = std::dynamic_pointer_cast<DFormat>(format);
+
+  m_gpr[dFormat->GetA()] = m_gpr[dFormat->GetD()] | dFormat->GetImmediate();
+
+  Debug("$%04x: ori r%d, r%d, 0x%x", m_pc, dFormat->GetA(), dFormat->GetD(),
         dFormat->GetImmediate());
 }
 

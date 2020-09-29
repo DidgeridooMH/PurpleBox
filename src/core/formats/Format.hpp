@@ -2,6 +2,7 @@
 #define PB_FORMAT_HPP
 
 #include <cstdint>
+#include <memory>
 
 namespace PurpleBox {
 class Format {

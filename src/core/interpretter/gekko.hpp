@@ -15,12 +15,18 @@ namespace PurpleBox {
 
 static constexpr uint32_t RESET_VECTOR = 0x100;
 
-typedef std::function<void(std::shared_ptr<Format> format)> opcodeFunc;
+typedef std::function<void(std::shared_ptr<Format> format)> OpcodeFunc;
+typedef std::function<std::shared_ptr<Format>(uint32_t instruction)>
+    FormatFactory;
 
-#define CREATE_OPCODE_ENTRY(opcode, func)  \
-  m_opcodeJumpTable.insert(std::make_pair( \
-      opcode,                              \
-      [this](std::shared_ptr<Format> format) { this->func(format); }));
+#define CREATE_OPCODE_ENTRY(opcode, func, format)                       \
+  m_opcodeJumpTable.insert(std::make_pair(                              \
+      opcode,                                                           \
+      [this](std::shared_ptr<Format> format) { this->func(format); })); \
+  m_opcodeFormatTable.insert(std::make_pair(                            \
+      opcode, [](uint32_t instruction) -> std::shared_ptr<Format> {     \
+        return std::make_shared<format>(instruction);                   \
+      }));
 
 class Gekko {
  public:
@@ -34,16 +40,17 @@ class Gekko {
 
  private:
   void GenerateOpcodeTables();
-  std::shared_ptr<Format> DecodeInstruction(uint32_t instruction);
 
   void AddImm(std::shared_ptr<Format> format);
   void AddImmShift(std::shared_ptr<Format> format);
+  void OrImm(std::shared_ptr<Format> format);
   void StoreHalfword(std::shared_ptr<Format> format);
   void MoveTo(std::shared_ptr<Format> format);
   void MoveToSpr(std::shared_ptr<XfxFormat> format);
   void MoveToMsr(std::shared_ptr<XfxFormat> format);
 
-  std::map<uint32_t, opcodeFunc> m_opcodeJumpTable;
+  std::map<uint32_t, OpcodeFunc> m_opcodeJumpTable;
+  std::map<uint32_t, FormatFactory> m_opcodeFormatTable;
 
   std::shared_ptr<Bus> m_bus;
   std::array<uint32_t, 32> m_gpr;

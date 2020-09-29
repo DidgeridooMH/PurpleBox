@@ -97,3 +97,59 @@ TEST(gekkoAddImmShiftTest, addImmShiftZeroSameSrc) {
 
   ASSERT_EQ(cpu->m_gpr[dest], ((uint32_t)testImmediate << 16) + testResident);
 }
+
+TEST(gekkoOrImm, orImmZeroZero) {
+  constexpr auto dest = 3U;
+  constexpr auto src = 2U;
+  constexpr int16_t testImmediate = 0;
+  constexpr uint32_t testResident = 0;
+  auto cpu = std::make_shared<PurpleBox::Gekko>();
+  auto instruction = buildDFormat(src, dest, testImmediate);
+  cpu->m_gpr[src] = testResident;
+
+  cpu->OrImm(instruction);
+
+  ASSERT_EQ(cpu->m_gpr[dest], 0);
+}
+
+TEST(gekkoOrImm, orImmZeroNonZero) {
+  constexpr auto dest = 3U;
+  constexpr auto src = 2U;
+  constexpr int16_t testImmediate = 0x1FED;
+  constexpr uint32_t testResident = 0;
+  auto cpu = std::make_shared<PurpleBox::Gekko>();
+  auto instruction = buildDFormat(src, dest, testImmediate);
+  cpu->m_gpr[src] = testResident;
+
+  cpu->OrImm(instruction);
+
+  ASSERT_EQ(cpu->m_gpr[dest], 0x1FED);
+}
+
+TEST(gekkoOrImm, orImmNonZeroNonZero) {
+  constexpr auto dest = 3U;
+  constexpr auto src = 2U;
+  constexpr int16_t testImmediate = 0x1FED;
+  constexpr uint32_t testResident = 0xF000F00D;
+  auto cpu = std::make_shared<PurpleBox::Gekko>();
+  auto instruction = buildDFormat(src, dest, testImmediate);
+  cpu->m_gpr[src] = testResident;
+
+  cpu->OrImm(instruction);
+
+  ASSERT_EQ(cpu->m_gpr[dest], testResident | testImmediate);
+}
+
+TEST(gekkoOrImm, orImmSameReg) {
+  constexpr auto dest = 3U;
+  constexpr auto src = 3U;
+  constexpr int16_t testImmediate = 0x1FED;
+  constexpr uint32_t testResident = 0xF000F00D;
+  auto cpu = std::make_shared<PurpleBox::Gekko>();
+  auto instruction = buildDFormat(src, dest, testImmediate);
+  cpu->m_gpr[src] = testResident;
+
+  cpu->OrImm(instruction);
+
+  ASSERT_EQ(cpu->m_gpr[dest], testResident | testImmediate);
+}
