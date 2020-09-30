@@ -1,7 +1,7 @@
 #ifndef PB_D_FORMAT_HPP
 #define PB_D_FORMAT_HPP
 
-#include <core/formats/Format.hpp>
+#include <core/formats/format.hpp>
 
 namespace PurpleBox {
 class DFormat : public Format {

@@ -1,4 +1,4 @@
-#include <core/formats/DFormat.hpp>
+#include <core/formats/dformat.hpp>
 
 namespace PurpleBox {
 DFormat::DFormat(uint32_t instruction)
