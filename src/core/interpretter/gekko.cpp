@@ -34,7 +34,11 @@ void Gekko::Tick() {
   auto opcode = DecodeOpcode(instruction);
 
   // Execute
-  m_opcodeJumpTable[opcode](instruction);
+  try {
+    m_opcodeJumpTable[opcode](instruction);
+  } catch (const std::exception& e) {
+    throw std::runtime_error("Invalid opcode: " + opcode);
+  }
 }
 
 constexpr uint32_t Gekko::DecodeOpcode(uint32_t instruction) {
@@ -46,8 +50,16 @@ void Gekko::ConnectMemory(std::shared_ptr<Bus> bus) { m_bus = bus; }
 void Gekko::GenerateOpcodeTables() {
   CREATE_OPCODE_ENTRY(ADDIS_OPCODE, AddImmShift, DFormat);
   CREATE_OPCODE_ENTRY(ADDI_OPCODE, AddImm, DFormat);
-  CREATE_OPCODE_ENTRY(MOVETO_OPCODE, MoveTo, XfxFormat);
+  CREATE_OPCODE_ENTRY(EXTENSION_OPCODE, ExecuteExtendedOpcode, XfxFormat);
   CREATE_OPCODE_ENTRY(STH_OPCODE, StoreHalfword, DFormat);
   CREATE_OPCODE_ENTRY(ORI_OPCODE, OrImm, DFormat);
+
+  CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, MTSPR_XOPCODE, MoveToSpr, XfxFormat);
+  CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, MTMSR_XOPCODE, MoveToMsr, XfxFormat);
+}
+
+void Gekko::ExecuteExtendedOpcode(std::shared_ptr<XfxFormat> format) {
+  auto tableHash = (format->GetOpcode() << 10) | format->GetExtendedOpcode();
+  m_extendedOpcodeJumpTable[tableHash](format->GetInstruction());
 }
 }  // namespace PurpleBox

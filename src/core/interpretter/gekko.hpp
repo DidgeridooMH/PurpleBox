@@ -23,6 +23,11 @@ typedef std::function<void(uint32_t)> OpcodeFunc;
       std::make_pair(opcode, [this](uint32_t instruction) {  \
         this->func(std::make_shared<format_t>(instruction)); \
       }));
+#define CREATE_EX_OPCODE_ENTRY(opcode, exopcode, func, format_t)               \
+  m_extendedOpcodeJumpTable.insert(                                            \
+      std::make_pair((opcode << 10) | exopcode, [this](uint32_t instruction) { \
+        this->func(std::make_shared<format_t>(instruction));                   \
+      }));
 
 class Gekko {
  public:
@@ -42,11 +47,12 @@ class Gekko {
   void AddImmShift(std::shared_ptr<DFormat> format);
   void OrImm(std::shared_ptr<DFormat> format);
   void StoreHalfword(std::shared_ptr<Format> format);
-  void MoveTo(std::shared_ptr<Format> format);
+  void ExecuteExtendedOpcode(std::shared_ptr<XfxFormat> format);
   void MoveToSpr(std::shared_ptr<XfxFormat> format);
   void MoveToMsr(std::shared_ptr<XfxFormat> format);
 
   std::map<uint32_t, OpcodeFunc> m_opcodeJumpTable;
+  std::map<uint32_t, OpcodeFunc> m_extendedOpcodeJumpTable;
 
   std::shared_ptr<Bus> m_bus;
   std::array<uint32_t, 32> m_gpr;

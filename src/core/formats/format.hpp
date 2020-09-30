@@ -11,9 +11,11 @@ class Format {
   virtual ~Format() = 0;
 
   uint32_t GetOpcode() const;
+  uint32_t GetInstruction() const;
 
  private:
   uint32_t m_opcode;
+  uint32_t m_instruction;
 };
 }  // namespace PurpleBox
 
