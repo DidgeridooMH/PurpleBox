@@ -8,14 +8,17 @@ inc = include_directories('src/')
 src = [
   'src/core/cdrom.cpp',
   'src/core/interpretter/gekko.cpp',
+  'src/core/interpretter/integer_ops.cpp',
+  'src/core/interpretter/memory_ops.cpp',
+  'src/core/interpretter/special_reg_ops.cpp',
   'src/utils/log.cpp',
   'src/utils/arch.cpp',
   'src/core/memory/ram.cpp',
   'src/core/memory/bus.cpp',
   'src/utils/cmdargs.cpp',
-  'src/core/formats/Format.cpp',
-  'src/core/formats/DFormat.cpp',
-  'src/core/formats/XfxFormat.cpp'
+  'src/core/formats/format.cpp',
+  'src/core/formats/dformat.cpp',
+  'src/core/formats/xfxformat.cpp'
 ]
 
 executable('purplebox',

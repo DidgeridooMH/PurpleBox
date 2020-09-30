@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <core/formats/DFormat.hpp>
+#include <core/formats/dformat.hpp>
 #include <memory>
 
 #define protected public

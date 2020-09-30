@@ -4,8 +4,9 @@
 // TODO: Make constants for the named registers.
 
 #include <array>
-#include <core/formats/Format.hpp>
-#include <core/formats/XfxFormat.hpp>
+#include <core/formats/dformat.hpp>
+#include <core/formats/format.hpp>
+#include <core/formats/xfxformat.hpp>
 #include <core/memory/bus.hpp>
 #include <functional>
 #include <map>
@@ -15,17 +16,12 @@ namespace PurpleBox {
 
 static constexpr uint32_t RESET_VECTOR = 0x100;
 
-typedef std::function<void(std::shared_ptr<Format> format)> OpcodeFunc;
-typedef std::function<std::shared_ptr<Format>(uint32_t instruction)>
-    FormatFactory;
+typedef std::function<void(uint32_t)> OpcodeFunc;
 
-#define CREATE_OPCODE_ENTRY(opcode, func, format)                       \
-  m_opcodeJumpTable.insert(std::make_pair(                              \
-      opcode,                                                           \
-      [this](std::shared_ptr<Format> format) { this->func(format); })); \
-  m_opcodeFormatTable.insert(std::make_pair(                            \
-      opcode, [](uint32_t instruction) -> std::shared_ptr<Format> {     \
-        return std::make_shared<format>(instruction);                   \
+#define CREATE_OPCODE_ENTRY(opcode, func, format_t)          \
+  m_opcodeJumpTable.insert(                                  \
+      std::make_pair(opcode, [this](uint32_t instruction) {  \
+        this->func(std::make_shared<format_t>(instruction)); \
       }));
 
 class Gekko {
@@ -40,17 +36,17 @@ class Gekko {
 
  private:
   void GenerateOpcodeTables();
+  static constexpr uint32_t DecodeOpcode(uint32_t instruction);
 
-  void AddImm(std::shared_ptr<Format> format);
-  void AddImmShift(std::shared_ptr<Format> format);
-  void OrImm(std::shared_ptr<Format> format);
+  void AddImm(std::shared_ptr<DFormat> format);
+  void AddImmShift(std::shared_ptr<DFormat> format);
+  void OrImm(std::shared_ptr<DFormat> format);
   void StoreHalfword(std::shared_ptr<Format> format);
   void MoveTo(std::shared_ptr<Format> format);
   void MoveToSpr(std::shared_ptr<XfxFormat> format);
   void MoveToMsr(std::shared_ptr<XfxFormat> format);
 
   std::map<uint32_t, OpcodeFunc> m_opcodeJumpTable;
-  std::map<uint32_t, FormatFactory> m_opcodeFormatTable;
 
   std::shared_ptr<Bus> m_bus;
   std::array<uint32_t, 32> m_gpr;

@@ -1,4 +1,4 @@
-#include <core/formats/XfxFormat.hpp>
+#include <core/formats/xfxformat.hpp>
 
 namespace PurpleBox {
 XfxFormat::XfxFormat(uint32_t instruction)
