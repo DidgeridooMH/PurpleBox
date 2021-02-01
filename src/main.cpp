@@ -33,6 +33,20 @@ void HandleCmdArgs(int argc, char** argv,
     exit(0);
   });
 
+  cmdArgs->AddArgument('l', "loglevel", [=](const std::string& level) {
+    if(level == "Debug") {
+      PurpleBox::SetLogLevel(PurpleBox::LogLevel::Debug);
+    } else if(level == "Info") {
+      PurpleBox::SetLogLevel(PurpleBox::LogLevel::Info);
+    } else if(level == "Warning") {
+      PurpleBox::SetLogLevel(PurpleBox::LogLevel::Warning);
+    } else if(level == "Error") {
+      PurpleBox::SetLogLevel(PurpleBox::LogLevel::Error);
+    } else {
+      throw std::runtime_error("Invalid log level: " + level);
+    }
+  });
+
   cmdArgs->AddArgument(
       'b', "bios",
       [parameters](const std::string& arg) { parameters->biosFileName = arg; },
@@ -47,8 +61,11 @@ void HandleCmdArgs(int argc, char** argv,
 }
 
 int main(int argc, char** argv) {
-  // TODO: Change based on debug/release
+#ifdef DEBUG
   PurpleBox::SetLogLevel(PurpleBox::LogLevel::Debug);
+#else
+  PurpleBox::SetLogLevel(PurpleBox::LogLevel::Warning);
+#endif
 
   auto cmdParameters = std::make_shared<CmdParameters>();
 

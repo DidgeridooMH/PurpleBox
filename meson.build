@@ -3,6 +3,10 @@ project('purplebox', 'cpp',
   version : '0.1',
   default_options : ['warning_level=3', 'cpp_std=c++17'])
 
+if get_option('buildtype').startswith('debug')
+    add_project_arguments('-DDEBUG', language : ['cpp'])
+endif
+
 inc = include_directories('src/')
 
 src = [
@@ -18,7 +22,8 @@ src = [
   'src/utils/cmdargs.cpp',
   'src/core/formats/format.cpp',
   'src/core/formats/dformat.cpp',
-  'src/core/formats/xfxformat.cpp'
+  'src/core/formats/xfxformat.cpp',
+  'src/core/formats/xoformat.cpp'
 ]
 
 executable('purplebox',
@@ -36,7 +41,9 @@ test_src = [
   'test/utils/arch.cpp',
   'test/utils/cmdargs.cpp',
   'test/core/memory/ram.cpp',
-  'test/core/interpretter/gekkotest.cpp'
+  'test/core/interpretter/gekkotest.cpp',
+  'test/core/interpretter/opcodegentest.cpp',
+  'test/core/interpretter/integeropstest.cpp',
 ]
 test_src += src
 

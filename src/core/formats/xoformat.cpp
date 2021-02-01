@@ -6,9 +6,9 @@ XoFormat::XoFormat(uint32_t instruction)
       m_rt(instruction >> 21 & 0x1F),
       m_ra(instruction >> 16 & 0x1F),
       m_rb(instruction >> 11 & 0x1F),
-      m_oe(instruction & 0x400 > 0),
+      m_oe((instruction & 0x400) > 0),
       m_ox(instruction >> 1 & 0x1FF),
-      m_rc(instruction & 0x1 > 0) {}
+      m_rc((instruction & 0x1) > 0) {}
 
 XoFormat::~XoFormat() {}
 

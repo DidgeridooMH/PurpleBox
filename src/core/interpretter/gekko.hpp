@@ -7,6 +7,7 @@
 #include <core/formats/dformat.hpp>
 #include <core/formats/format.hpp>
 #include <core/formats/xfxformat.hpp>
+#include <core/formats/xoformat.hpp>
 #include <core/memory/bus.hpp>
 #include <functional>
 #include <map>
@@ -29,6 +30,8 @@ typedef std::function<void(uint32_t)> OpcodeFunc;
         this->func(std::make_shared<format_t>(instruction));                   \
       }));
 
+#define XER 1
+
 class Gekko {
  public:
   Gekko();
@@ -43,6 +46,9 @@ class Gekko {
   void GenerateOpcodeTables();
   static constexpr uint32_t DecodeOpcode(uint32_t instruction);
 
+  void UpdateCr0(int32_t result);
+  void UpdateOverflow(int32_t a, int32_t b, int32_t r);
+  void Add(std::shared_ptr<XoFormat> format);
   void AddImm(std::shared_ptr<DFormat> format);
   void AddImmShift(std::shared_ptr<DFormat> format);
   void OrImm(std::shared_ptr<DFormat> format);
@@ -60,7 +66,7 @@ class Gekko {
   std::array<uint32_t, 16> m_sr;  // Not used in DolphinOS
   std::array<uint32_t, 1024> m_spr;
 
-  uint32_t m_cr;
+  std::array<uint8_t, 8> m_cr;
   uint32_t m_fpscr;
   union {
     struct msr {

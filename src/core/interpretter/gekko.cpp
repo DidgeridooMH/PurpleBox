@@ -18,7 +18,7 @@ void Gekko::Reset() {
   m_fpr.fill(0);
   m_sr.fill(0);
   m_spr.fill(0);
-  m_cr = 0;
+  m_cr.fill(0);
   m_fpscr = 0;
   std::memset(&m_msr, 0, sizeof(m_msr));
   m_pc = RESET_VECTOR + 0xfff00000;  // TODO: This is temporary and should be
@@ -56,6 +56,10 @@ void Gekko::GenerateOpcodeTables() {
 
   CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, MTSPR_XOPCODE, MoveToSpr, XfxFormat);
   CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, MTMSR_XOPCODE, MoveToMsr, XfxFormat);
+  CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, ADD_XOPCODE, Add, XoFormat);
+  CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, ADDC_XOPCODE, Add, XoFormat);
+  CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, ADDO_XOPCODE, Add, XoFormat);
+  CREATE_EX_OPCODE_ENTRY(EXTENSION_OPCODE, ADDOC_XOPCODE, Add, XoFormat);
 }
 
 void Gekko::ExecuteExtendedOpcode(std::shared_ptr<XfxFormat> format) {
