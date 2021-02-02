@@ -44,7 +44,7 @@ void Gekko::AddImm(std::shared_ptr<DFormat> format) {
   }
   m_gpr[format->GetD()] = value;
 
-  Debug("$%04x: addi r%d, r%d, 0x%x", m_pc, format->GetD(), format->GetA(),
+  Debug("${:04X}: addi r{}, r{}, 0x{:X}", m_pc, format->GetD(), format->GetA(),
         format->GetImmediate());
 }
 
@@ -55,7 +55,7 @@ void Gekko::AddImmShift(std::shared_ptr<DFormat> format) {
   }
   m_gpr[format->GetD()] = value;
 
-  Debug("$%04x: addis r%d, r%d, 0x%x", m_pc, format->GetD(), format->GetA(),
+  Debug("${:04X}: addis r{}, r{}, 0x{:X}", m_pc, format->GetD(), format->GetA(),
         format->GetImmediate());
 }
 
@@ -69,7 +69,7 @@ void Gekko::Add(std::shared_ptr<XoFormat> format) {
   if (format->GetOe()) UpdateOverflow(ra, rb, result);
   if (format->GetRc()) UpdateCr0(result);
 
-  Debug("$%04x: add%s%s r%d, r%d, r%d", format->GetOe() ? "o" : "",
+  Debug("${:04X}: add{}{} r{}, r{}, r{}", format->GetOe() ? "o" : "",
         format->GetRc() ? "." : "", m_pc, format->GetRt(), format->GetRa(),
         format->GetRb());
 }
@@ -77,7 +77,7 @@ void Gekko::Add(std::shared_ptr<XoFormat> format) {
 void Gekko::OrImm(std::shared_ptr<DFormat> format) {
   m_gpr[format->GetA()] = m_gpr[format->GetD()] | format->GetImmediate();
 
-  Debug("$%04x: ori r%d, r%d, 0x%x", m_pc, format->GetA(), format->GetD(),
+  Debug("${:04X}: ori r{}, r{}, 0x{}", m_pc, format->GetA(), format->GetD(),
         format->GetImmediate());
 }
 }  // namespace PurpleBox

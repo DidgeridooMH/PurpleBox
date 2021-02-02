@@ -1,9 +1,13 @@
-#include <core/formats/dformat.hpp>
-#include <core/interpretter/gekko.hpp>
-#include <core/interpretter/opcodes.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <string>
+
+#include <fmt/format.h>
+
+#include <core/formats/dformat.hpp>
+#include <core/interpretter/gekko.hpp>
+#include <core/interpretter/opcodes.hpp>
+
 #include <utils/log.hpp>
 
 namespace PurpleBox {
@@ -34,11 +38,11 @@ void Gekko::Tick() {
   auto opcode = DecodeOpcode(instruction);
 
   // Execute
-  try {
-    m_opcodeJumpTable[opcode](instruction);
-  } catch (const std::exception& e) {
-    throw std::runtime_error("Invalid opcode: " + opcode);
+  if(m_opcodeJumpTable.count(opcode) == 0)
+  {
+    throw std::runtime_error(fmt::format("Invalid opcode: {:X}", opcode));
   }
+  m_opcodeJumpTable[opcode](instruction);
 }
 
 constexpr uint32_t Gekko::DecodeOpcode(uint32_t instruction) {
@@ -64,6 +68,10 @@ void Gekko::GenerateOpcodeTables() {
 
 void Gekko::ExecuteExtendedOpcode(std::shared_ptr<XfxFormat> format) {
   auto tableHash = (format->GetOpcode() << 10) | format->GetExtendedOpcode();
-  m_extendedOpcodeJumpTable[tableHash](format->GetInstruction());
+  if(m_extendedOpcodeJumpTable.count(tableHash) > 0) {
+    m_extendedOpcodeJumpTable[tableHash](format->GetInstruction());
+  } else {
+    throw std::runtime_error(fmt::format("Invalid extended opcode: {:X}-{:X}", format->GetOpcode(), tableHash));
+  }
 }
 }  // namespace PurpleBox

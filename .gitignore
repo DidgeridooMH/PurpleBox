@@ -32,8 +32,10 @@
 *.app
 
 build/
+builddir/
 .vscode/
 roms/
 
 subprojects/googletest-release-1.10.0
 subprojects/packagecache
+subprojects/fmt-*

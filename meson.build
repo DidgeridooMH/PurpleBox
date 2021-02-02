@@ -7,6 +7,9 @@ if get_option('buildtype').startswith('debug')
     add_project_arguments('-DDEBUG', language : ['cpp'])
 endif
 
+fmt = subproject('fmt')
+fmt_dep = fmt.get_variable('fmt_dep')
+
 inc = include_directories('src/')
 
 src = [
@@ -29,6 +32,7 @@ src = [
 executable('purplebox',
   sources : [src, 'src/main.cpp'],
   include_directories : inc,
+  dependencies : [fmt_dep],
   cpp_args : '-DVERSION=@0@'.format(meson.project_version())
 )
 
@@ -56,7 +60,8 @@ purplebox_test = executable(
   include_directories : test_inc,
   dependencies : [
     gtest_dep,
-    gmock_dep
+    gmock_dep,
+    fmt_dep
   ]
 )
 

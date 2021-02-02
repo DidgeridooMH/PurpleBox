@@ -16,7 +16,7 @@ void Gekko::StoreHalfword(std::shared_ptr<Format> format) {
 
   m_bus->Write16(value, address);
 
-  Debug("$%04x: sth r%d, %d(r%d)", m_pc, dFormat->GetD(),
+  Debug("${:04X}: sth r{}, {}(r{})", m_pc, dFormat->GetD(),
         dFormat->GetImmediate(), dFormat->GetA());
 }
 }  // namespace PurpleBox

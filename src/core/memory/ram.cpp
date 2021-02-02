@@ -56,14 +56,14 @@ void Ram::Write64(uint64_t data, uint64_t address) {
 }
 
 void Ram::LoadIplFile(const std::string& filename) {
-  PurpleBox::Info("Loading BIOS File: %s", filename.c_str());
+  PurpleBox::Info("Loading BIOS File: {}", filename);
   auto biosFile = std::ifstream(filename, std::ios::ate | std::ios::binary);
   if (!biosFile.is_open()) {
     throw std::runtime_error("Unable to open file");
   }
 
   auto biosFileSize = biosFile.tellg();
-  PurpleBox::Debug("BIOS file size: %ld", biosFileSize);
+  PurpleBox::Debug("BIOS file size: {}", biosFileSize);
   biosFile.seekg(biosFile.beg);
 
   try {

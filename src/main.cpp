@@ -1,10 +1,13 @@
-#include <core/cdrom.hpp>
-#include <core/interpretter/gekko.hpp>
-#include <core/memory/ram.hpp>
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
+
+#include <fmt/format.h>
+
+#include <core/cdrom.hpp>
+#include <core/interpretter/gekko.hpp>
+#include <core/memory/ram.hpp>
 #include <utils/cmdargs.hpp>
 #include <utils/log.hpp>
 
@@ -16,12 +19,6 @@ struct CmdParameters {
   std::string biosFileName;
 };
 
-void PrintBanner() {
-  std::stringstream banner;
-  banner << "PurpleBox Version " << VERSION;
-  PurpleBox::Info(banner.str());
-}
-
 void PrintUsage() { PurpleBox::Info("Usage: purplebox [ROM]"); }
 
 void HandleCmdArgs(int argc, char** argv,
@@ -29,7 +26,7 @@ void HandleCmdArgs(int argc, char** argv,
   auto cmdArgs = std::make_unique<PurpleBox::CmdArgs>();
 
   cmdArgs->AddArgument('v', "version", [=](const std::string&) {
-    PrintBanner();
+    PurpleBox::Info("PurpleBox Version {}", VERSION);
     exit(0);
   });
 
@@ -55,7 +52,7 @@ void HandleCmdArgs(int argc, char** argv,
   try {
     cmdArgs->ParseArguments(argc, argv);
   } catch (const std::exception& e) {
-    PurpleBox::Error("Error parsing arguments: %s", e.what());
+    PurpleBox::Error("Error parsing arguments: {}", e.what());
     exit(1);
   }
 }
@@ -72,8 +69,7 @@ int main(int argc, char** argv) {
   HandleCmdArgs(argc, argv, cmdParameters);
 
   if (cmdParameters->biosFileName.size() == 0) {
-    PurpleBox::Error(
-        "HLE Bios not implemented. Please provide an IPL/BIOS file.");
+    PurpleBox::Error("HLE Bios not implemented. Please provide an IPL/BIOS file.");
     return 1;
   }
 
@@ -82,7 +78,7 @@ int main(int argc, char** argv) {
   // try {
   //   cdRom->LoadRom();
   // } catch (const std::exception& e) {
-  //   PurpleBox::Error("Error reading file " + romFileName + e.what());
+  //   PurpleBox::Error("{}", "Error reading file " + romFileName + e.what());
   // }
 
   auto ram = std::make_shared<PurpleBox::Ram>();
@@ -90,7 +86,7 @@ int main(int argc, char** argv) {
   try {
     ram->LoadIplFile(cmdParameters->biosFileName);
   } catch (const std::exception& e) {
-    PurpleBox::Error("Error loading BIOS: %s", e.what());
+    PurpleBox::Error("Error loading BIOS: {}", e.what());
     return 1;
   }
 
@@ -101,7 +97,7 @@ int main(int argc, char** argv) {
     try {
       cpu->Tick();
     } catch (const std::exception& e) {
-      PurpleBox::Error(e.what());
+      PurpleBox::Error("{}", e.what());
       return 1;
     }
   }
